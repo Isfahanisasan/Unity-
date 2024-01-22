@@ -15,15 +15,18 @@ public class PlayerController : MonoBehaviour
 
     //keep track of current horizontal direction
     Vector2 direction = Vector2.zero;
+    private Vector3 originalScale;
 
     //keep track of if the player is on the ground
     bool isGrounded = false;
+    bool isShiftPressed = false; 
 
     // Start is called before the first frame update
     void Start()
     {
         // Get references to the components attached to the current GameObject
         rb = GetComponent<Rigidbody>();
+        originalScale = rb.transform.localScale;
     }
 
     // Update is called once per frame
@@ -33,6 +36,32 @@ public class PlayerController : MonoBehaviour
         if (transform.position.y < respawnHeight)
             Respawn();
         Move(direction.x, direction.y);
+        // Check if the Shift key is pressed down
+        if (Input.GetKeyDown(KeyCode.LeftShift) || Input.GetKeyDown(KeyCode.RightShift))
+        {
+            isShiftPressed = true;
+            PerformShiftAction();
+        }
+
+        // Optionally, check if the Shift key is released
+        if (isShiftPressed && (Input.GetKeyUp(KeyCode.LeftShift) || Input.GetKeyUp(KeyCode.RightShift)))
+        {
+            isShiftPressed = false;
+            RevertShiftAction();
+        }
+    }
+
+    private void PerformShiftAction()
+    {
+        rb.transform.localScale = new Vector3(originalScale.x * 2, originalScale.y / 2, originalScale.z * 2);
+
+
+    }
+
+    private void RevertShiftAction()
+    {
+        // Revert to original scale
+        rb.transform.localScale = originalScale;
     }
 
     void OnJump()
